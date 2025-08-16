@@ -1,279 +1,289 @@
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Briefcase, Users, TrendingUp, CheckCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Search, MapPin, Users, Briefcase, TrendingUp, Building2 } from "lucide-react"
+import { AuthModal } from '@/components/AuthModal'
+import { AuthProvider, useAuth } from '@/hooks/useAuth'
+import { JobSearch } from '@/components/JobSearch'
+import { JobCard } from '@/components/JobCard'
+import { useJobs } from '@/hooks/useJobs'
+import { useToast } from '@/hooks/use-toast'
+import { supabase } from '@/integrations/supabase/client'
 
-const Index = () => {
+const IndexContent = () => {
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [searchFilters, setSearchFilters] = useState<any>({})
+  const { user, signOut, loading: authLoading } = useAuth()
+  const { jobs, loading: jobsLoading } = useJobs()
+  const { toast } = useToast()
+
+  const handleJobSearch = (filters: any) => {
+    setSearchFilters(filters)
+    // Here you would implement the actual search logic
+    console.log('Search filters:', filters)
+  }
+
+  const handleApplyToJob = async (jobId: string) => {
+    if (!user) {
+      setAuthModalOpen(true)
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('job_applications')
+        .insert({
+          job_id: jobId,
+          talent_id: user.id,
+          status: 'pending'
+        })
+
+      if (error) throw error
+
+      toast({
+        title: 'Success',
+        description: 'Your application has been submitted!'
+      })
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to submit application',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleSaveJob = async (jobId: string) => {
+    if (!user) {
+      setAuthModalOpen(true)
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('saved_jobs')
+        .insert({
+          job_id: jobId,
+          talent_id: user.id
+        })
+
+      if (error) throw error
+
+      toast({
+        title: 'Success',
+        description: 'Job saved to your favorites!'
+      })
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save job',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <Briefcase className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">JobConnect</span>
+            <div className="flex items-center">
+              <Briefcase className="h-8 w-8 text-blue-600" />
+              <span className="ml-2 text-xl font-bold text-gray-900">JobOpportunity</span>
             </div>
+            
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/jobs" className="text-muted-foreground hover:text-foreground transition-colors">
-                Find Jobs
-              </Link>
-              <Link to="/companies" className="text-muted-foreground hover:text-foreground transition-colors">
-                Companies
-              </Link>
-              <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors">
-                About
-              </Link>
+              <a href="#" className="text-gray-700 hover:text-blue-600">Find Jobs</a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">Companies</a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">Resources</a>
             </div>
+            
             <div className="flex items-center space-x-4">
-              <Button variant="outline">Sign In</Button>
-              <Button>Get Started</Button>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-muted-foreground">
+                    Welcome, {user.email}
+                  </span>
+                  <Button variant="outline" onClick={signOut}>
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={() => setAuthModalOpen(true)}>
+                    Sign In
+                  </Button>
+                  <Button onClick={() => setAuthModalOpen(true)}>
+                    Sign Up
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-primary/5 to-accent/10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Find Your Perfect
-            <span className="text-primary block">Job Opportunity</span>
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            Find Your Dream Job
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Connect talented professionals with amazing companies. Discover opportunities that match your skills and career goals.
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Connect with top employers and discover opportunities that match your skills and aspirations.
           </p>
           
-          {/* Search Bar */}
+          {/* Job Search Component */}
           <div className="max-w-4xl mx-auto mb-12">
-            <Card className="p-6">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Job title, keywords, or company"
-                    className="w-full pl-10 pr-4 py-3 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <div className="flex-1 relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Location"
-                    className="w-full pl-10 pr-4 py-3 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <Button size="lg" className="px-8">
-                  Search Jobs
-                </Button>
-              </div>
-            </Card>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">10,000+</div>
-              <div className="text-muted-foreground">Active Jobs</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">5,000+</div>
-              <div className="text-muted-foreground">Companies</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">50,000+</div>
-              <div className="text-muted-foreground">Professionals</div>
-            </div>
+            <JobSearch onSearch={handleJobSearch} />
           </div>
         </div>
       </section>
 
       {/* Featured Jobs */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Featured Opportunities</h2>
-            <p className="text-muted-foreground">Discover the latest job openings from top companies</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Opportunities</h2>
+            <p className="text-xl text-gray-600">Discover the latest job openings from top companies</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Senior Frontend Developer",
-                company: "TechCorp Inc.",
-                location: "San Francisco, CA",
-                type: "Full-time",
-                salary: "$120k - $160k",
-                skills: ["React", "TypeScript", "Node.js"],
-                posted: "2 days ago"
-              },
-              {
-                title: "Product Manager",
-                company: "Innovation Labs",
-                location: "New York, NY",
-                type: "Full-time",
-                salary: "$130k - $180k",
-                skills: ["Product Strategy", "Analytics", "Leadership"],
-                posted: "1 day ago"
-              },
-              {
-                title: "UX/UI Designer",
-                company: "Creative Studio",
-                location: "Remote",
-                type: "Contract",
-                salary: "$80k - $120k",
-                skills: ["Figma", "User Research", "Prototyping"],
-                posted: "3 days ago"
-              }
-            ].map((job, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg mb-1">{job.title}</CardTitle>
-                      <CardDescription className="flex items-center gap-1">
-                        <Briefcase className="h-4 w-4" />
-                        {job.company}
-                      </CardDescription>
-                    </div>
-                    <Badge variant="secondary">{job.type}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {job.location}
-                    </div>
-                    <div className="text-lg font-semibold text-primary">{job.salary}</div>
-                    <div className="flex flex-wrap gap-1">
-                      {job.skills.map((skill) => (
-                        <Badge key={skill} variant="outline" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{job.posted}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {jobsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="border rounded-lg p-6 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {jobs.slice(0, 6).map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  onApply={handleApplyToJob}
+                  onSave={handleSaveJob}
+                />
+              ))}
+            </div>
+          )}
           
-          <div className="text-center mt-12">
-            <Button size="lg" variant="outline">
-              View All Jobs
-            </Button>
-          </div>
+          {jobs.length === 0 && !jobsLoading && (
+            <div className="text-center py-12">
+              <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No jobs available at the moment. Check back soon!</p>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-16 bg-muted/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">How It Works</h2>
-            <p className="text-muted-foreground">Get started in just a few simple steps</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-primary" />
+      {/* Stats Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="flex justify-center mb-4">
+                <Briefcase className="h-12 w-12 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Create Your Profile</h3>
-              <p className="text-muted-foreground">
-                Build a comprehensive profile showcasing your skills, experience, and career preferences.
-              </p>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">10,000+</h3>
+              <p className="text-gray-600">Active Jobs</p>
             </div>
-            <div className="text-center">
-              <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="h-8 w-8 text-primary" />
+            <div>
+              <div className="flex justify-center mb-4">
+                <Users className="h-12 w-12 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Discover Opportunities</h3>
-              <p className="text-muted-foreground">
-                Browse thousands of job listings or let our smart matching system find perfect opportunities for you.
-              </p>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">50,000+</h3>
+              <p className="text-gray-600">Job Seekers</p>
             </div>
-            <div className="text-center">
-              <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-8 w-8 text-primary" />
+            <div>
+              <div className="flex justify-center mb-4">
+                <Building2 className="h-12 w-12 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Get Hired</h3>
-              <p className="text-muted-foreground">
-                Apply directly to companies, communicate with employers, and land your dream job.
-              </p>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">1,000+</h3>
+              <p className="text-gray-600">Companies</p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Find Your Next Opportunity?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join thousands of professionals who have found their dream jobs through JobConnect
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary">
-              For Job Seekers
-            </Button>
-            <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
-              For Employers
-            </Button>
+            <div>
+              <div className="flex justify-center mb-4">
+                <TrendingUp className="h-12 w-12 text-orange-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">95%</h3>
+              <p className="text-gray-600">Success Rate</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-background border-t py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Briefcase className="h-6 w-6 text-primary" />
-                <span className="text-lg font-bold">JobConnect</span>
+              <div className="flex items-center mb-4">
+                <Briefcase className="h-8 w-8 text-blue-400" />
+                <span className="ml-2 text-xl font-bold">JobOpportunity</span>
               </div>
-              <p className="text-muted-foreground text-sm">
-                Connecting talent with opportunity. Your career journey starts here.
+              <p className="text-gray-400">
+                Connecting talented professionals with amazing opportunities worldwide.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">For Job Seekers</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/jobs" className="hover:text-foreground">Browse Jobs</Link></li>
-                <li><Link to="/companies" className="hover:text-foreground">Companies</Link></li>
-                <li><Link to="/resources" className="hover:text-foreground">Career Resources</Link></li>
+              <h3 className="text-lg font-semibold mb-4">For Job Seekers</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white">Browse Jobs</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Career Advice</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Resume Builder</a></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">For Employers</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/post-job" className="hover:text-foreground">Post a Job</Link></li>
-                <li><Link to="/pricing" className="hover:text-foreground">Pricing</Link></li>
-                <li><Link to="/solutions" className="hover:text-foreground">Solutions</Link></li>
+              <h3 className="text-lg font-semibold mb-4">For Employers</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white">Post Jobs</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Find Talent</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Pricing</a></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/about" className="hover:text-foreground">About Us</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
-                <li><Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
+              <h3 className="text-lg font-semibold mb-4">Company</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white">About Us</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Contact</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 JobConnect. All rights reserved.</p>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+            <p className="text-gray-400">&copy; 2024 JobOpportunity. All rights reserved.</p>
           </div>
         </div>
       </footer>
-    </div>
-  );
-};
 
-export default Index;
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+    </div>
+  )
+}
+
+const Index = () => {
+  return (
+    <AuthProvider>
+      <IndexContent />
+    </AuthProvider>
+  )
+}
+
+export default Index
