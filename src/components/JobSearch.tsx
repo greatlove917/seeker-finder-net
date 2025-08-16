@@ -49,8 +49,8 @@ export const JobSearch = ({ onSearch }: JobSearchProps) => {
     onSearch({
       query,
       location,
-      jobType,
-      category,
+      jobType: jobType === 'all-types' ? '' : jobType,
+      category: category === 'all-categories' ? '' : category,
       remoteOnly
     })
   }
@@ -70,7 +70,7 @@ export const JobSearch = ({ onSearch }: JobSearchProps) => {
     })
   }
 
-  const hasActiveFilters = query || location || jobType || category || remoteOnly
+  const hasActiveFilters = query || location || (jobType && jobType !== 'all-types') || (category && category !== 'all-categories') || remoteOnly
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6 space-y-4">
@@ -100,7 +100,7 @@ export const JobSearch = ({ onSearch }: JobSearchProps) => {
             <SelectValue placeholder="Job Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Types</SelectItem>
+            <SelectItem value="all-types">All Types</SelectItem>
             <SelectItem value="full-time">Full Time</SelectItem>
             <SelectItem value="part-time">Part Time</SelectItem>
             <SelectItem value="contract">Contract</SelectItem>
@@ -114,7 +114,7 @@ export const JobSearch = ({ onSearch }: JobSearchProps) => {
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem value="all-categories">All Categories</SelectItem>
             {categories.map((cat) => (
               <SelectItem key={cat.id} value={cat.id}>
                 {cat.name}
@@ -168,7 +168,7 @@ export const JobSearch = ({ onSearch }: JobSearchProps) => {
               <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => setLocation('')} />
             </Badge>
           )}
-          {jobType && (
+          {jobType && jobType !== 'all-types' && (
             <Badge variant="secondary">
               Type: {jobType}
               <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => setJobType('')} />
