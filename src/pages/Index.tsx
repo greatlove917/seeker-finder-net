@@ -1,6 +1,7 @@
+
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Search, MapPin, Users, Briefcase, TrendingUp, Building2 } from "lucide-react"
+import { Search, MapPin, Users, Briefcase, TrendingUp, Building2, X } from "lucide-react"
 import { AuthModal } from '@/components/AuthModal'
 import { AuthProvider, useAuth } from '@/hooks/useAuth'
 import { JobSearch } from '@/components/JobSearch'
