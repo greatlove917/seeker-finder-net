@@ -130,299 +130,321 @@ const IndexContent = () => {
   const currentLoading = hasSearched ? searchLoading : jobsLoading
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Briefcase className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">JobOpportunity</span>
-            </div>
-            
-            {user && (
-              <div className="hidden md:flex items-center space-x-8">
-                <button 
-                  onClick={() => setActiveTab('home')}
-                  className={`text-gray-700 hover:text-blue-600 ${activeTab === 'home' ? 'text-blue-600 font-medium' : ''}`}
-                >
-                  Find Jobs
-                </button>
-                <button 
-                  onClick={() => setActiveTab('applications')}
-                  className={`text-gray-700 hover:text-blue-600 ${activeTab === 'applications' ? 'text-blue-600 font-medium' : ''}`}
-                >
-                  My Applications
-                </button>
-                <button 
-                  onClick={() => setActiveTab('saved')}
-                  className={`text-gray-700 hover:text-blue-600 ${activeTab === 'saved' ? 'text-blue-600 font-medium' : ''}`}
-                >
-                  Saved Jobs
-                </button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 relative">
+      {/* Background Image */}
+      <div 
+        className="fixed inset-0 z-0 opacity-10"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1560472355-536de3962603?q=80&w=2026&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
+      {/* Content overlay */}
+      <div className="relative z-10">
+        {/* Navigation */}
+        <nav className="bg-white/90 backdrop-blur-sm shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <Briefcase className="h-8 w-8 text-blue-600" />
+                <span className="ml-2 text-xl font-bold text-gray-900">JobOpportunity</span>
               </div>
-            )}
-            
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-muted-foreground">
-                    Welcome, {user.email}
-                  </span>
-                  <Button variant="outline" onClick={signOut}>
-                    Sign Out
-                  </Button>
+              
+              {user && (
+                <div className="hidden md:flex items-center space-x-8">
+                  <button 
+                    onClick={() => setActiveTab('home')}
+                    className={`text-gray-700 hover:text-blue-600 ${activeTab === 'home' ? 'text-blue-600 font-medium' : ''}`}
+                  >
+                    Find Jobs
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('applications')}
+                    className={`text-gray-700 hover:text-blue-600 ${activeTab === 'applications' ? 'text-blue-600 font-medium' : ''}`}
+                  >
+                    My Applications
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('saved')}
+                    className={`text-gray-700 hover:text-blue-600 ${activeTab === 'saved' ? 'text-blue-600 font-medium' : ''}`}
+                  >
+                    Saved Jobs
+                  </button>
                 </div>
-              ) : (
-                <>
-                  <Button variant="ghost" onClick={() => setAuthModalOpen(true)}>
-                    Sign In
-                  </Button>
-                  <Button onClick={() => setAuthModalOpen(true)}>
-                    Sign Up
-                  </Button>
-                </>
               )}
+              
+              <div className="flex items-center space-x-4">
+                {user ? (
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-muted-foreground">
+                      Welcome, {user.email}
+                    </span>
+                    <Button variant="outline" onClick={signOut}>
+                      Sign Out
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Button variant="ghost" onClick={() => setAuthModalOpen(true)}>
+                      Sign In
+                    </Button>
+                    <Button onClick={() => setAuthModalOpen(true)}>
+                      Sign Up
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      {user ? (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsContent value="home">
-            {/* Hero Section with Search */}
-            <section className="py-20 px-4 sm:px-6 lg:px-8">
-              <div className="max-w-7xl mx-auto text-center">
-                <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-                  Find Your Dream Job
-                </h1>
-                <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                  Connect with top employers and discover opportunities that match your skills and aspirations.
-                </p>
-                
-                <div className="max-w-4xl mx-auto mb-12">
-                  <JobSearch onSearch={handleJobSearch} />
-                </div>
-              </div>
-            </section>
-
-            {/* Jobs Section */}
-            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-              <div className="max-w-7xl mx-auto">
-                <div className="flex gap-8">
-                  {/* Filters Sidebar */}
-                  <div className="w-64 flex-shrink-0">
-                    <JobFilters onFiltersChange={handleJobFilters} />
-                  </div>
-
-                  {/* Jobs List */}
-                  <div className="flex-1">
-                    <div className="text-center mb-12">
-                      <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                        {hasSearched ? 'Search Results' : 'Featured Opportunities'}
-                      </h2>
-                      <p className="text-xl text-gray-600">
-                        {hasSearched ? `Found ${currentJobs.length} jobs` : 'Discover the latest job openings from top companies'}
-                      </p>
+        {user ? (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsContent value="home">
+              {/* Hero Section with Search */}
+              <section className="py-20 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto text-center">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+                    <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                      Find Your Dream Job
+                    </h1>
+                    <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                      Connect with top employers and discover opportunities that match your skills and aspirations.
+                    </p>
+                    
+                    <div className="max-w-4xl mx-auto mb-12">
+                      <JobSearch onSearch={handleJobSearch} />
                     </div>
-                    
-                    {currentLoading ? (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {[...Array(6)].map((_, i) => (
-                          <div key={i} className="border rounded-lg p-6 animate-pulse">
-                            <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                            <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {currentJobs.map((job) => (
-                          <JobCard
-                            key={job.id}
-                            job={job}
-                            onApply={handleApplyToJob}
-                            onSave={handleSaveJob}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    
-                    {currentJobs.length === 0 && !currentLoading && (
-                      <div className="text-center py-12">
-                        <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">
-                          {hasSearched ? 'No jobs found matching your criteria. Try adjusting your search.' : 'No jobs available at the moment. Check back soon!'}
+                  </div>
+                </div>
+              </section>
+
+              {/* Jobs Section */}
+              <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/90 backdrop-blur-sm">
+                <div className="max-w-7xl mx-auto">
+                  <div className="flex gap-8">
+                    {/* Filters Sidebar */}
+                    <div className="w-64 flex-shrink-0">
+                      <JobFilters onFiltersChange={handleJobFilters} />
+                    </div>
+
+                    {/* Jobs List */}
+                    <div className="flex-1">
+                      <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                          {hasSearched ? 'Search Results' : 'Featured Opportunities'}
+                        </h2>
+                        <p className="text-xl text-gray-600">
+                          {hasSearched ? `Found ${currentJobs.length} jobs` : 'Discover the latest job openings from top companies'}
                         </p>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-          </TabsContent>
-
-          <TabsContent value="applications">
-            <section className="py-16 px-4 sm:px-6 lg:px-8">
-              <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold text-gray-900 mb-8">My Applications</h1>
-                <ApplicationsList />
-              </div>
-            </section>
-          </TabsContent>
-
-          <TabsContent value="saved">
-            <section className="py-16 px-4 sm:px-6 lg:px-8">
-              <div className="max-w-7xl mx-auto">
-                <h1 className="text-3xl font-bold text-gray-900 mb-8">Saved Jobs</h1>
-                <SavedJobsList />
-              </div>
-            </section>
-          </TabsContent>
-        </Tabs>
-      ) : (
-        <>
-          {/* Hero Section */}
-          <section className="py-20 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto text-center">
-              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-                Find Your Dream Job
-              </h1>
-              <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                Connect with top employers and discover opportunities that match your skills and aspirations.
-              </p>
-              
-              <div className="max-w-4xl mx-auto mb-12">
-                <JobSearch onSearch={handleJobSearch} />
-              </div>
-            </div>
-          </section>
-
-          {/* Featured Jobs */}
-          <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Opportunities</h2>
-                <p className="text-xl text-gray-600">Discover the latest job openings from top companies</p>
-              </div>
-              
-              {jobsLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="border rounded-lg p-6 animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      
+                      {currentLoading ? (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {[...Array(6)].map((_, i) => (
+                            <div key={i} className="border rounded-lg p-6 animate-pulse bg-white/50">
+                              <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {currentJobs.map((job) => (
+                            <JobCard
+                              key={job.id}
+                              job={job}
+                              onApply={handleApplyToJob}
+                              onSave={handleSaveJob}
+                            />
+                          ))}
+                        </div>
+                      )}
+                      
+                      {currentJobs.length === 0 && !currentLoading && (
+                        <div className="text-center py-12 bg-white/50 rounded-lg">
+                          <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-500">
+                            {hasSearched ? 'No jobs found matching your criteria. Try adjusting your search.' : 'No jobs available at the moment. Check back soon!'}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {jobs.slice(0, 6).map((job) => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      onApply={handleApplyToJob}
-                      onSave={handleSaveJob}
-                    />
-                  ))}
-                </div>
-              )}
-              
-              {jobs.length === 0 && !jobsLoading && (
-                <div className="text-center py-12">
-                  <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No jobs available at the moment. Check back soon!</p>
-                </div>
-              )}
-            </div>
-          </section>
+              </section>
+            </TabsContent>
 
-          {/* Stats Section */}
-          <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-                <div>
-                  <div className="flex justify-center mb-4">
-                    <Briefcase className="h-12 w-12 text-blue-600" />
+            <TabsContent value="applications">
+              <section className="py-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-4xl mx-auto">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-8">My Applications</h1>
+                    <ApplicationsList />
                   </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">10,000+</h3>
-                  <p className="text-gray-600">Active Jobs</p>
                 </div>
-                <div>
-                  <div className="flex justify-center mb-4">
-                    <Users className="h-12 w-12 text-green-600" />
-                  </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">50,000+</h3>
-                  <p className="text-gray-600">Job Seekers</p>
-                </div>
-                <div>
-                  <div className="flex justify-center mb-4">
-                    <Building2 className="h-12 w-12 text-purple-600" />
-                  </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">1,000+</h3>
-                  <p className="text-gray-600">Companies</p>
-                </div>
-                <div>
-                  <div className="flex justify-center mb-4">
-                    <TrendingUp className="h-12 w-12 text-orange-600" />
-                  </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">95%</h3>
-                  <p className="text-gray-600">Success Rate</p>
-                </div>
-              </div>
-            </div>
-          </section>
+              </section>
+            </TabsContent>
 
-          {/* Footer */}
-          <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                  <div className="flex items-center mb-4">
-                    <Briefcase className="h-8 w-8 text-blue-400" />
-                    <span className="ml-2 text-xl font-bold">JobOpportunity</span>
+            <TabsContent value="saved">
+              <section className="py-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-8">Saved Jobs</h1>
+                    <SavedJobsList />
                   </div>
-                  <p className="text-gray-400">
-                    Connecting talented professionals with amazing opportunities worldwide.
+                </div>
+              </section>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <>
+            {/* Hero Section */}
+            <section className="py-20 px-4 sm:px-6 lg:px-8">
+              <div className="max-w-7xl mx-auto text-center">
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+                  <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                    Find Your Dream Job
+                  </h1>
+                  <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                    Connect with top employers and discover opportunities that match your skills and aspirations.
                   </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">For Job Seekers</h3>
-                  <ul className="space-y-2">
-                    <li><a href="#" className="text-gray-400 hover:text-white">Browse Jobs</a></li>
-                    <li><a href="#" className="text-gray-400 hover:text-white">Career Advice</a></li>
-                    <li><a href="#" className="text-gray-400 hover:text-white">Resume Builder</a></li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">For Employers</h3>
-                  <ul className="space-y-2">
-                    <li><a href="#" className="text-gray-400 hover:text-white">Post Jobs</a></li>
-                    <li><a href="#" className="text-gray-400 hover:text-white">Find Talent</a></li>
-                    <li><a href="#" className="text-gray-400 hover:text-white">Pricing</a></li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Company</h3>
-                  <ul className="space-y-2">
-                    <li><a href="#" className="text-gray-400 hover:text-white">About Us</a></li>
-                    <li><a href="#" className="text-gray-400 hover:text-white">Contact</a></li>
-                    <li><a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a></li>
-                  </ul>
+                  
+                  <div className="max-w-4xl mx-auto mb-12">
+                    <JobSearch onSearch={handleJobSearch} />
+                  </div>
                 </div>
               </div>
-              <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-                <p className="text-gray-400">&copy; 2024 JobOpportunity. All rights reserved.</p>
-              </div>
-            </div>
-          </footer>
-        </>
-      )}
+            </section>
 
-      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+            {/* Featured Jobs */}
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/90 backdrop-blur-sm">
+              <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Opportunities</h2>
+                  <p className="text-xl text-gray-600">Discover the latest job openings from top companies</p>
+                </div>
+                
+                {jobsLoading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="border rounded-lg p-6 animate-pulse bg-white/50">
+                        <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                        <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {jobs.slice(0, 6).map((job) => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        onApply={handleApplyToJob}
+                        onSave={handleSaveJob}
+                      />
+                    ))}
+                  </div>
+                )}
+                
+                {jobs.length === 0 && !jobsLoading && (
+                  <div className="text-center py-12 bg-white/50 rounded-lg">
+                    <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No jobs available at the moment. Check back soon!</p>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Stats Section */}
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/70 backdrop-blur-sm">
+              <div className="max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                  <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg">
+                    <div className="flex justify-center mb-4">
+                      <Briefcase className="h-12 w-12 text-blue-600" />
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-2">10,000+</h3>
+                    <p className="text-gray-600">Active Jobs</p>
+                  </div>
+                  <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg">
+                    <div className="flex justify-center mb-4">
+                      <Users className="h-12 w-12 text-green-600" />
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-2">50,000+</h3>
+                    <p className="text-gray-600">Job Seekers</p>
+                  </div>
+                  <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg">
+                    <div className="flex justify-center mb-4">
+                      <Building2 className="h-12 w-12 text-purple-600" />
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-2">1,000+</h3>
+                    <p className="text-gray-600">Companies</p>
+                  </div>
+                  <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg">
+                    <div className="flex justify-center mb-4">
+                      <TrendingUp className="h-12 w-12 text-orange-600" />
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-2">95%</h3>
+                    <p className="text-gray-600">Success Rate</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="bg-gray-900/90 backdrop-blur-sm text-white py-12 px-4 sm:px-6 lg:px-8">
+              <div className="max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                  <div>
+                    <div className="flex items-center mb-4">
+                      <Briefcase className="h-8 w-8 text-blue-400" />
+                      <span className="ml-2 text-xl font-bold">JobOpportunity</span>
+                    </div>
+                    <p className="text-gray-400">
+                      Connecting talented professionals with amazing opportunities worldwide.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">For Job Seekers</h3>
+                    <ul className="space-y-2">
+                      <li><a href="#" className="text-gray-400 hover:text-white">Browse Jobs</a></li>
+                      <li><a href="#" className="text-gray-400 hover:text-white">Career Advice</a></li>
+                      <li><a href="#" className="text-gray-400 hover:text-white">Resume Builder</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">For Employers</h3>
+                    <ul className="space-y-2">
+                      <li><a href="#" className="text-gray-400 hover:text-white">Post Jobs</a></li>
+                      <li><a href="#" className="text-gray-400 hover:text-white">Find Talent</a></li>
+                      <li><a href="#" className="text-gray-400 hover:text-white">Pricing</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Company</h3>
+                    <ul className="space-y-2">
+                      <li><a href="#" className="text-gray-400 hover:text-white">About Us</a></li>
+                      <li><a href="#" className="text-gray-400 hover:text-white">Contact</a></li>
+                      <li><a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+                  <p className="text-gray-400">&copy; 2024 JobOpportunity. All rights reserved.</p>
+                </div>
+              </div>
+            </footer>
+          </>
+        )}
+
+        <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+      </div>
     </div>
   )
 }
