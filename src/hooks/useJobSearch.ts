@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { Job } from '@/hooks/useJobs'
@@ -18,52 +18,101 @@ interface SearchFilters {
 export const useJobSearch = () => {
   const [searchResults, setSearchResults] = useState<Job[]>([])
   const [loading, setLoading] = useState(false)
+  const [lastSearchFilters, setLastSearchFilters] = useState<SearchFilters | null>(null)
   const { toast } = useToast()
 
+  // Memoize the search function to prevent unnecessary re-renders
   const searchJobs = useCallback(async (filters: SearchFilters) => {
+    // Skip search if filters haven't changed
+    if (lastSearchFilters && JSON.stringify(filters) === JSON.stringify(lastSearchFilters)) {
+      return
+    }
+
     setLoading(true)
+    setLastSearchFilters(filters)
+
     try {
       let query = supabase
         .from('jobs')
         .select(`
-          *,
-          companies (
+          id,
+          title,
+          description,
+          company_id,
+          employer_id,
+          job_type,
+          experience_level,
+          location,
+          remote_allowed,
+          salary_min,
+          salary_max,
+          currency,
+          status,
+          created_at,
+          companies!inner (
             name,
             logo_url
           )
         `)
         .eq('status', 'active')
 
-      // Apply basic search filters
-      if (filters.query) {
-        query = query.or(`title.ilike.%${filters.query}%,description.ilike.%${filters.query}%`)
+      // Build search conditions efficiently
+      const conditions = []
+
+      // Text search - combine title and description search
+      if (filters.query?.trim()) {
+        const searchTerm = filters.query.trim()
+        conditions.push(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
       }
 
-      if (filters.location) {
-        query = query.ilike('location', `%${filters.location}%`)
+      if (conditions.length > 0) {
+        query = query.or(conditions.join(','))
       }
 
-      if (filters.jobType) {
-        query = query.eq('job_type', filters.jobType)
+      // Location filter
+      if (filters.location?.trim()) {
+        query = query.ilike('location', `%${filters.location.trim()}%`)
       }
 
-      if (filters.category) {
+      // Job type filter - handle both basic and advanced filters
+      const jobTypes = []
+      if (filters.jobType && filters.jobType !== 'all-types') {
+        jobTypes.push(filters.jobType)
+      }
+      if (filters.jobTypes && filters.jobTypes.length > 0) {
+        jobTypes.push(...filters.jobTypes)
+      }
+      
+      // Remove duplicates and apply filter
+      const uniqueJobTypes = [...new Set(jobTypes)]
+      if (uniqueJobTypes.length > 0) {
+        if (uniqueJobTypes.length === 1) {
+          query = query.eq('job_type', uniqueJobTypes[0])
+        } else {
+          query = query.in('job_type', uniqueJobTypes)
+        }
+      }
+
+      // Category filter
+      if (filters.category && filters.category !== 'all-categories') {
         query = query.eq('category_id', filters.category)
       }
 
+      // Remote filter
       if (filters.remoteOnly) {
         query = query.eq('remote_allowed', true)
       }
 
-      // Apply advanced filters from JobFilters component
-      if (filters.jobTypes && filters.jobTypes.length > 0) {
-        query = query.in('job_type', filters.jobTypes)
-      }
-
+      // Experience level filter
       if (filters.experienceLevels && filters.experienceLevels.length > 0) {
-        query = query.in('experience_level', filters.experienceLevels)
+        if (filters.experienceLevels.length === 1) {
+          query = query.eq('experience_level', filters.experienceLevels[0])
+        } else {
+          query = query.in('experience_level', filters.experienceLevels)
+        }
       }
 
+      // Salary range filter - optimize by only adding conditions when needed
       if (filters.salaryRange) {
         const [minSalary, maxSalary] = filters.salaryRange
         if (minSalary > 0) {
@@ -74,25 +123,38 @@ export const useJobSearch = () => {
         }
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false })
+      // Order by created_at for consistency and add limit for performance
+      const { data, error } = await query
+        .order('created_at', { ascending: false })
+        .limit(100) // Limit results for better performance
 
       if (error) throw error
       setSearchResults(data || [])
     } catch (error: any) {
       console.error('Error searching jobs:', error)
       toast({
-        title: 'Error',
-        description: 'Failed to search jobs',
+        title: 'Search Error',
+        description: 'Failed to search jobs. Please try again.',
         variant: 'destructive'
       })
+      setSearchResults([])
     } finally {
       setLoading(false)
     }
-  }, [toast])
+  }, [toast, lastSearchFilters])
 
   const clearResults = useCallback(() => {
     setSearchResults([])
+    setLastSearchFilters(null)
   }, [])
 
-  return { searchResults, loading, searchJobs, clearResults }
+  // Memoize return value to prevent unnecessary re-renders
+  const returnValue = useMemo(() => ({
+    searchResults,
+    loading,
+    searchJobs,
+    clearResults
+  }), [searchResults, loading, searchJobs, clearResults])
+
+  return returnValue
 }

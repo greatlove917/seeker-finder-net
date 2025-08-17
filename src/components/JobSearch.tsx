@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { Search, MapPin, X } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
+import { useDebounce } from '@/hooks/useDebounce'
 
 interface JobSearchProps {
   onSearch: (filters: SearchFilters) => void
@@ -32,6 +33,10 @@ export const JobSearch = ({ onSearch }: JobSearchProps) => {
   const [remoteOnly, setRemoteOnly] = useState(false)
   const [categories, setCategories] = useState<JobCategory[]>([])
 
+  // Debounce search inputs to reduce API calls
+  const debouncedQuery = useDebounce(query, 300)
+  const debouncedLocation = useDebounce(location, 300)
+
   useEffect(() => {
     const fetchCategories = async () => {
       const { data } = await supabase
@@ -45,14 +50,23 @@ export const JobSearch = ({ onSearch }: JobSearchProps) => {
     fetchCategories()
   }, [])
 
-  const handleSearch = () => {
-    onSearch({
-      query,
-      location,
+  // Auto-search when debounced values change
+  useEffect(() => {
+    if (debouncedQuery || debouncedLocation || jobType || category || remoteOnly) {
+      handleSearch(true) // Pass true to indicate auto-search
+    }
+  }, [debouncedQuery, debouncedLocation, jobType, category, remoteOnly])
+
+  const handleSearch = (isAutoSearch = false) => {
+    const filters = {
+      query: debouncedQuery,
+      location: debouncedLocation,
       jobType: jobType === 'all-types' ? '' : jobType,
       category: category === 'all-categories' ? '' : category,
       remoteOnly
-    })
+    }
+
+    onSearch(filters)
   }
 
   const clearFilters = () => {
@@ -149,7 +163,7 @@ export const JobSearch = ({ onSearch }: JobSearchProps) => {
           )}
         </div>
         
-        <Button onClick={handleSearch}>
+        <Button onClick={() => handleSearch()}>
           Search Jobs
         </Button>
       </div>
