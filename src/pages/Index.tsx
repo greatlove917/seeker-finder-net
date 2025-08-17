@@ -20,21 +20,35 @@ const IndexContent = () => {
   const [activeTab, setActiveTab] = useState('home')
   const { user, signOut, loading: authLoading } = useAuth()
   const { jobs, loading: jobsLoading } = useJobs()
-  const { searchResults, loading: searchLoading, searchJobs } = useJobSearch()
+  const { searchResults, loading: searchLoading, searchJobs, clearResults } = useJobSearch()
   const { isJobSaved } = useSavedJobs()
   const { toast } = useToast()
 
-  const [displayJobs, setDisplayJobs] = useState<any[]>([])
   const [hasSearched, setHasSearched] = useState(false)
+  const [currentSearchFilters, setCurrentSearchFilters] = useState<any>({})
 
   const handleJobSearch = async (filters: any) => {
     setHasSearched(true)
+    setCurrentSearchFilters(filters)
     await searchJobs(filters)
   }
 
-  const handleJobFilters = (filters: any) => {
-    // Apply additional filters to current results
-    console.log('Applying filters:', filters)
+  const handleJobFilters = async (additionalFilters: any) => {
+    // Combine search filters with additional filters and re-search
+    const combinedFilters = {
+      ...currentSearchFilters,
+      ...additionalFilters
+    }
+    setCurrentSearchFilters(combinedFilters)
+    if (hasSearched) {
+      await searchJobs(combinedFilters)
+    }
+  }
+
+  const handleClearSearch = () => {
+    setHasSearched(false)
+    setCurrentSearchFilters({})
+    clearResults()
   }
 
   const handleApplyToJob = async (jobId: string) => {
@@ -218,6 +232,15 @@ const IndexContent = () => {
                     <div className="max-w-4xl mx-auto mb-12">
                       <JobSearch onSearch={handleJobSearch} />
                     </div>
+
+                    {hasSearched && (
+                      <div className="mt-4">
+                        <Button variant="outline" onClick={handleClearSearch}>
+                          <X className="h-4 w-4 mr-2" />
+                          Clear Search
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </section>
@@ -317,6 +340,15 @@ const IndexContent = () => {
                   <div className="max-w-4xl mx-auto mb-12">
                     <JobSearch onSearch={handleJobSearch} />
                   </div>
+
+                  {hasSearched && (
+                    <div className="mt-4">
+                      <Button variant="outline" onClick={handleClearSearch}>
+                        <X className="h-4 w-4 mr-2" />
+                        Clear Search
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -325,11 +357,15 @@ const IndexContent = () => {
             <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/80 backdrop-blur-sm">
               <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Opportunities</h2>
-                  <p className="text-xl text-gray-600">Discover the latest job openings from top companies</p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    {hasSearched ? 'Search Results' : 'Featured Opportunities'}
+                  </h2>
+                  <p className="text-xl text-gray-600">
+                    {hasSearched ? `Found ${(hasSearched ? searchResults : jobs).length} jobs` : 'Discover the latest job openings from top companies'}
+                  </p>
                 </div>
                 
-                {jobsLoading ? (
+                {(hasSearched ? searchLoading : jobsLoading) ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
                       <div key={i} className="border rounded-lg p-6 animate-pulse bg-white/50">
@@ -341,7 +377,7 @@ const IndexContent = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {jobs.slice(0, 6).map((job) => (
+                    {(hasSearched ? searchResults : jobs).slice(0, 6).map((job) => (
                       <JobCard
                         key={job.id}
                         job={job}
@@ -352,16 +388,17 @@ const IndexContent = () => {
                   </div>
                 )}
                 
-                {jobs.length === 0 && !jobsLoading && (
+                {(hasSearched ? searchResults : jobs).length === 0 && !(hasSearched ? searchLoading : jobsLoading) && (
                   <div className="text-center py-12 bg-white/50 rounded-lg">
                     <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">No jobs available at the moment. Check back soon!</p>
+                    <p className="text-gray-500">
+                      {hasSearched ? 'No jobs found matching your criteria. Try adjusting your search.' : 'No jobs available at the moment. Check back soon!'}
+                    </p>
                   </div>
                 )}
               </div>
             </section>
 
-            {/* Stats Section */}
             <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/60 backdrop-blur-sm">
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
@@ -397,7 +434,6 @@ const IndexContent = () => {
               </div>
             </section>
 
-            {/* Footer */}
             <footer className="bg-gray-900/80 backdrop-blur-sm text-white py-12 px-4 sm:px-6 lg:px-8">
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

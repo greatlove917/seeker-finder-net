@@ -10,6 +10,9 @@ interface SearchFilters {
   jobType: string
   category: string
   remoteOnly: boolean
+  salaryRange?: [number, number]
+  experienceLevels?: string[]
+  jobTypes?: string[]
 }
 
 export const useJobSearch = () => {
@@ -31,7 +34,7 @@ export const useJobSearch = () => {
         `)
         .eq('status', 'active')
 
-      // Apply filters
+      // Apply basic search filters
       if (filters.query) {
         query = query.or(`title.ilike.%${filters.query}%,description.ilike.%${filters.query}%`)
       }
@@ -52,6 +55,25 @@ export const useJobSearch = () => {
         query = query.eq('remote_allowed', true)
       }
 
+      // Apply advanced filters from JobFilters component
+      if (filters.jobTypes && filters.jobTypes.length > 0) {
+        query = query.in('job_type', filters.jobTypes)
+      }
+
+      if (filters.experienceLevels && filters.experienceLevels.length > 0) {
+        query = query.in('experience_level', filters.experienceLevels)
+      }
+
+      if (filters.salaryRange) {
+        const [minSalary, maxSalary] = filters.salaryRange
+        if (minSalary > 0) {
+          query = query.gte('salary_min', minSalary)
+        }
+        if (maxSalary < 200000) {
+          query = query.lte('salary_max', maxSalary)
+        }
+      }
+
       const { data, error } = await query.order('created_at', { ascending: false })
 
       if (error) throw error
@@ -68,5 +90,9 @@ export const useJobSearch = () => {
     }
   }, [toast])
 
-  return { searchResults, loading, searchJobs }
+  const clearResults = useCallback(() => {
+    setSearchResults([])
+  }, [])
+
+  return { searchResults, loading, searchJobs, clearResults }
 }
