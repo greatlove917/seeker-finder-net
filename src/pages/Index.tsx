@@ -133,7 +133,7 @@ const IndexContent = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 relative">
       {/* Background Image */}
       <div 
-        className="fixed inset-0 z-0 opacity-10"
+        className="fixed inset-0 z-0 opacity-30"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1560472355-536de3962603?q=80&w=2026&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
           backgroundSize: 'cover',
@@ -145,7 +145,7 @@ const IndexContent = () => {
       {/* Content overlay */}
       <div className="relative z-10">
         {/* Navigation */}
-        <nav className="bg-white/90 backdrop-blur-sm shadow-sm border-b">
+        <nav className="bg-white/80 backdrop-blur-sm shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
@@ -207,7 +207,7 @@ const IndexContent = () => {
               {/* Hero Section with Search */}
               <section className="py-20 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto text-center">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
                     <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
                       Find Your Dream Job
                     </h1>
@@ -223,7 +223,7 @@ const IndexContent = () => {
               </section>
 
               {/* Jobs Section */}
-              <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/90 backdrop-blur-sm">
+              <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/80 backdrop-blur-sm">
                 <div className="max-w-7xl mx-auto">
                   <div className="flex gap-8">
                     {/* Filters Sidebar */}
@@ -282,7 +282,7 @@ const IndexContent = () => {
             <TabsContent value="applications">
               <section className="py-16 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-4xl mx-auto">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
                     <h1 className="text-3xl font-bold text-gray-900 mb-8">My Applications</h1>
                     <ApplicationsList />
                   </div>
@@ -293,7 +293,7 @@ const IndexContent = () => {
             <TabsContent value="saved">
               <section className="py-16 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
                     <h1 className="text-3xl font-bold text-gray-900 mb-8">Saved Jobs</h1>
                     <SavedJobsList />
                   </div>
@@ -306,7 +306,7 @@ const IndexContent = () => {
             {/* Hero Section */}
             <section className="py-20 px-4 sm:px-6 lg:px-8">
               <div className="max-w-7xl mx-auto text-center">
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
                   <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
                     Find Your Dream Job
                   </h1>
@@ -322,7 +322,7 @@ const IndexContent = () => {
             </section>
 
             {/* Featured Jobs */}
-            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/90 backdrop-blur-sm">
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/80 backdrop-blur-sm">
               <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Opportunities</h2>
@@ -362,7 +362,7 @@ const IndexContent = () => {
             </section>
 
             {/* Stats Section */}
-            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/70 backdrop-blur-sm">
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/60 backdrop-blur-sm">
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
                   <div className="bg-white/50 backdrop-blur-sm p-6 rounded-lg">
@@ -398,7 +398,7 @@ const IndexContent = () => {
             </section>
 
             {/* Footer */}
-            <footer className="bg-gray-900/90 backdrop-blur-sm text-white py-12 px-4 sm:px-6 lg:px-8">
+            <footer className="bg-gray-900/80 backdrop-blur-sm text-white py-12 px-4 sm:px-6 lg:px-8">
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                   <div>
