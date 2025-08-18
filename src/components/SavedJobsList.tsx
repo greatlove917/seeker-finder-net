@@ -47,7 +47,6 @@ export const SavedJobsList = () => {
         <div key={savedJob.id} className="relative">
           <JobCard
             job={savedJob.jobs}
-            onSave={() => handleUnsaveJob(savedJob.job_id)}
           />
           <Button
             variant="ghost"
