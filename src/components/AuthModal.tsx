@@ -47,7 +47,9 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
     } else {
       toast({
         title: 'Success',
-        description: 'Please check your email to verify your account'
+        description: userType === 'talent' 
+          ? 'Welcome! Please check your email to verify your account.' 
+          : 'Welcome employer! Please check your email to verify your account.'
       })
       onOpenChange(false)
     }
@@ -74,7 +76,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
     } else {
       toast({
         title: 'Success',
-        description: 'Welcome back!'
+        description: 'Welcome back! You are now signed in.'
       })
       onOpenChange(false)
     }
@@ -86,7 +88,9 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Join JobOpportunity</DialogTitle>
+          <DialogTitle className="text-center text-2xl font-bold text-primary">
+            Join JobOpportunity
+          </DialogTitle>
         </DialogHeader>
         
         <Tabs defaultValue="signin" className="w-full">
@@ -95,7 +99,10 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="signin">
+          <TabsContent value="signin" className="space-y-4">
+            <div className="text-center text-sm text-muted-foreground">
+              Welcome back! Sign in to access your account
+            </div>
             <form onSubmit={handleSignIn} className="space-y-4">
               <div>
                 <Label htmlFor="signin-email">Email</Label>
@@ -105,6 +112,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                   type="email"
                   required
                   placeholder="your@email.com"
+                  className="mt-1"
                 />
               </div>
               <div>
@@ -115,6 +123,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                   type="password"
                   required
                   placeholder="Your password"
+                  className="mt-1"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
@@ -123,18 +132,25 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
             </form>
           </TabsContent>
           
-          <TabsContent value="signup">
+          <TabsContent value="signup" className="space-y-4">
+            <div className="text-center text-sm text-muted-foreground">
+              Create your account to get started
+            </div>
             <form onSubmit={handleSignUp} className="space-y-4">
               <div>
-                <Label>I am a:</Label>
-                <RadioGroup value={userType} onValueChange={(value) => setUserType(value as 'talent' | 'employer')}>
+                <Label className="text-sm font-medium">I am a:</Label>
+                <RadioGroup 
+                  value={userType} 
+                  onValueChange={(value) => setUserType(value as 'talent' | 'employer')}
+                  className="mt-2"
+                >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="talent" id="talent" />
-                    <Label htmlFor="talent">Job Seeker</Label>
+                    <Label htmlFor="talent" className="font-normal">Job Seeker</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="employer" id="employer" />
-                    <Label htmlFor="employer">Employer</Label>
+                    <Label htmlFor="employer" className="font-normal">Employer</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -147,6 +163,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                     name="firstName"
                     required
                     placeholder="John"
+                    className="mt-1"
                   />
                 </div>
                 <div>
@@ -156,6 +173,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                     name="lastName"
                     required
                     placeholder="Doe"
+                    className="mt-1"
                   />
                 </div>
               </div>
@@ -168,6 +186,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                     name="companyName"
                     required
                     placeholder="Your Company"
+                    className="mt-1"
                   />
                 </div>
               )}
@@ -180,6 +199,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                   type="email"
                   required
                   placeholder="your@email.com"
+                  className="mt-1"
                 />
               </div>
               <div>
@@ -190,6 +210,7 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                   type="password"
                   required
                   placeholder="Create a password"
+                  className="mt-1"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>

@@ -30,23 +30,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email)
         setSession(session)
         setUser(session?.user ?? null)
+        
+        // Create or update profile when user signs in
+        if (event === 'SIGNED_IN' && session?.user) {
+          await createOrUpdateProfile(session.user)
+        }
+        
         setLoading(false)
       }
     )
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
+      
+      // Ensure profile exists for existing session
+      if (session?.user) {
+        await createOrUpdateProfile(session.user)
+      }
+      
       setLoading(false)
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  const createOrUpdateProfile = async (user: User) => {
+    try {
+      // Check if profile already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+      if (!existingProfile) {
+        // Create new profile with user metadata
+        const { error } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            first_name: user.user_metadata?.first_name || '',
+            last_name: user.user_metadata?.last_name || '',
+            user_type: user.user_metadata?.user_type || 'talent',
+            company_name: user.user_metadata?.company_name || null,
+          })
+
+        if (error) {
+          console.error('Error creating profile:', error)
+        }
+      }
+    } catch (error) {
+      console.error('Error handling profile:', error)
+    }
+  }
 
   const signUp = async (email: string, password: string, userData?: any) => {
     const redirectUrl = `${window.location.origin}/`
