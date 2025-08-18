@@ -69,9 +69,10 @@ export const useJobSearch = () => {
         query = query.or(conditions.join(','))
       }
 
-      // Location filter
+      // Location filter with better matching
       if (filters.location?.trim()) {
-        query = query.ilike('location', `%${filters.location.trim()}%`)
+        const locationTerm = filters.location.trim()
+        query = query.or(`location.ilike.%${locationTerm}%,companies.location.ilike.%${locationTerm}%`)
       }
 
       // Job type filter - handle both basic and advanced filters
@@ -129,7 +130,14 @@ export const useJobSearch = () => {
         .limit(100) // Limit results for better performance
 
       if (error) throw error
-      setSearchResults(data || [])
+      
+      // Transform the data to match the Job interface
+      const transformedData: Job[] = (data || []).map(job => ({
+        ...job,
+        companies: job.companies[0] // Take the first company object from the array
+      }))
+      
+      setSearchResults(transformedData)
     } catch (error: any) {
       console.error('Error searching jobs:', error)
       toast({

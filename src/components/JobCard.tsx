@@ -2,16 +2,27 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MapPin, Clock, DollarSign, Building } from 'lucide-react'
+import { MapPin, Clock, DollarSign, Building, Heart, ExternalLink } from 'lucide-react'
 import { Job } from '@/hooks/useJobs'
+import { useJobApplication } from '@/hooks/useJobApplication'
+import { useSavedJobs } from '@/hooks/useSavedJobs'
+import { useState } from 'react'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 
 interface JobCardProps {
   job: Job
-  onApply?: (jobId: string) => void
-  onSave?: (jobId: string) => void
+  showEmployerActions?: boolean
+  onStatusChange?: (jobId: string, status: string) => void
 }
 
-export const JobCard = ({ job, onApply, onSave }: JobCardProps) => {
+export const JobCard = ({ job, showEmployerActions = false, onStatusChange }: JobCardProps) => {
+  const { applyToJob, saveJob, loading } = useJobApplication()
+  const { isJobSaved } = useSavedJobs()
+  const [coverLetter, setCoverLetter] = useState('')
+  const [showApplicationDialog, setShowApplicationDialog] = useState(false)
+
   const formatSalary = (min: number | null, max: number | null, currency: string) => {
     if (!min && !max) return 'Salary not specified'
     if (min && max) return `${currency} ${min.toLocaleString()} - ${max.toLocaleString()}`
@@ -24,6 +35,28 @@ export const JobCard = ({ job, onApply, onSave }: JobCardProps) => {
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ')
   }
+
+  const handleApply = async () => {
+    const result = await applyToJob({
+      jobId: job.id,
+      coverLetter: coverLetter.trim() || undefined
+    })
+    
+    if (result.success) {
+      setShowApplicationDialog(false)
+      setCoverLetter('')
+    }
+  }
+
+  const handleSave = async () => {
+    await saveJob(job.id)
+  }
+
+  const handleStatusChange = (status: string) => {
+    onStatusChange?.(job.id, status)
+  }
+
+  const jobSaved = isJobSaved(job.id)
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -45,6 +78,11 @@ export const JobCard = ({ job, onApply, onSave }: JobCardProps) => {
               </div>
             </div>
           </div>
+          {showEmployerActions && (
+            <Badge variant={job.status === 'active' ? 'default' : 'secondary'}>
+              {job.status}
+            </Badge>
+          )}
         </div>
       </CardHeader>
       
@@ -83,20 +121,81 @@ export const JobCard = ({ job, onApply, onSave }: JobCardProps) => {
             </div>
           </div>
           
-          <div className="flex gap-2 pt-2">
-            <Button 
-              onClick={() => onApply?.(job.id)}
-              className="flex-1"
-            >
-              Apply Now
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => onSave?.(job.id)}
-            >
-              Save
-            </Button>
-          </div>
+          {showEmployerActions ? (
+            <div className="flex gap-2 pt-2">
+              <Button 
+                onClick={() => handleStatusChange('active')}
+                disabled={job.status === 'active'}
+                size="sm"
+              >
+                Publish
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => handleStatusChange('closed')}
+                disabled={job.status === 'closed'}
+                size="sm"
+              >
+                Close
+              </Button>
+              <Button 
+                variant="ghost"
+                size="sm"
+              >
+                <ExternalLink className="h-4 w-4 mr-1" />
+                View Applications
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2 pt-2">
+              <Dialog open={showApplicationDialog} onOpenChange={setShowApplicationDialog}>
+                <DialogTrigger asChild>
+                  <Button className="flex-1">
+                    Apply Now
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Apply to {job.title}</DialogTitle>
+                    <DialogDescription>
+                      Submit your application to {job.companies.name}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="coverLetter">Cover Letter (Optional)</Label>
+                      <Textarea
+                        id="coverLetter"
+                        placeholder="Tell them why you're interested in this position..."
+                        value={coverLetter}
+                        onChange={(e) => setCoverLetter(e.target.value)}
+                        rows={4}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleApply} disabled={loading} className="flex-1">
+                        {loading ? 'Submitting...' : 'Submit Application'}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowApplicationDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              
+              <Button 
+                variant="outline"
+                onClick={handleSave}
+                disabled={loading}
+              >
+                <Heart className={`h-4 w-4 ${jobSaved ? 'fill-current text-red-500' : ''}`} />
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
