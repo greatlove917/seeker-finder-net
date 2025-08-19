@@ -5,41 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Briefcase, MapPin, Users, Search } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import { JobPostingModal } from '@/components/JobPostingModal';
-import { EnhancedJobCard } from '@/components/EnhancedJobCard';
+import { JobCard } from '@/components/JobCard';
 import { useAuth } from '@/hooks/useAuth';
+import { useJobs } from '@/hooks/useJobs';
 
 const Index = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [jobPostingModalOpen, setJobPostingModalOpen] = useState(false);
   const { user, signOut, loading } = useAuth();
-
-  // Sample job data for demonstration
-  const sampleJobs = [
-    {
-      id: '1',
-      title: 'Senior Software Engineer',
-      company: 'TechCorp Inc.',
-      location: 'San Francisco, CA',
-      type: 'Full-time',
-      salary: '$120,000 - $160,000',
-      contact: 'jobs@techcorp.com',
-      description: 'We are looking for a Senior Software Engineer to join our growing team...',
-      requirements: ['5+ years experience', 'React/Node.js', 'Team leadership'],
-      benefits: ['Health insurance', 'Remote work', '401k matching']
-    },
-    {
-      id: '2',
-      title: 'UX Designer',
-      company: 'Design Studio',
-      location: 'New York, NY',
-      type: 'Contract',
-      salary: '$80 - $100/hour',
-      contact: 'hello@designstudio.com',
-      description: 'Join our creative team as a UX Designer and help shape amazing user experiences...',
-      requirements: ['3+ years UX experience', 'Figma proficiency', 'Portfolio required'],
-      benefits: ['Flexible hours', 'Creative environment', 'Learning budget']
-    }
-  ];
+  const { jobs, loading: jobsLoading } = useJobs();
 
   if (loading) {
     return (
@@ -133,7 +107,7 @@ const Index = () => {
             <Button 
               size="lg" 
               onClick={() => user ? setJobPostingModalOpen(true) : setAuthModalOpen(true)}
-              className="px-8 py-3 bg-secondary hover:bg-secondary/90"
+              className="px-8 py-3 bg-secondary hover:bg-secondary/90 transition-all duration-300 transform hover:scale-105"
             >
               Post Jobs as Employer
             </Button>
@@ -169,10 +143,33 @@ const Index = () => {
             <p className="text-lg text-gray-600">Discover exciting opportunities from top companies</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {sampleJobs.map((job) => (
-              <EnhancedJobCard key={job.id} job={job} />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {jobsLoading ? (
+              // Loading skeleton
+              [...Array(6)].map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-full"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : jobs.length > 0 ? (
+              jobs.slice(0, 6).map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No jobs available at the moment. Check back later!</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -186,7 +183,7 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center hover:shadow-lg transition-shadow">
+            <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
               <CardHeader>
                 <Briefcase className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Quality Jobs</CardTitle>
@@ -198,7 +195,7 @@ const Index = () => {
               </CardContent>
             </Card>
             
-            <Card className="text-center hover:shadow-lg transition-shadow">
+            <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
               <CardHeader>
                 <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Location Flexible</CardTitle>
@@ -210,7 +207,7 @@ const Index = () => {
               </CardContent>
             </Card>
             
-            <Card className="text-center hover:shadow-lg transition-shadow">
+            <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
               <CardHeader>
                 <Users className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Career Growth</CardTitle>
@@ -236,7 +233,7 @@ const Index = () => {
             size="lg" 
             variant="secondary"
             onClick={() => setAuthModalOpen(true)}
-            className="px-8 py-3"
+            className="px-8 py-3 transition-all duration-300 transform hover:scale-105"
           >
             Join Now - It's Free
           </Button>
