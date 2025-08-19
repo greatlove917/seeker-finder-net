@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,14 +5,24 @@ import { Briefcase, MapPin, Users, Search } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import { JobPostingModal } from '@/components/JobPostingModal';
 import { JobCard } from '@/components/JobCard';
+import { QualityJobs } from '@/components/QualityJobs';
+import { LocationFlexible } from '@/components/LocationFlexible';
+import { CareerGrowth } from '@/components/CareerGrowth';
 import { useAuth } from '@/hooks/useAuth';
 import { useJobs } from '@/hooks/useJobs';
 
 const Index = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [jobPostingModalOpen, setJobPostingModalOpen] = useState(false);
+  const [locationFilter, setLocationFilter] = useState('');
   const { user, signOut, loading } = useAuth();
-  const { jobs, loading: jobsLoading } = useJobs();
+  const { jobs, loading: jobsLoading, refetch } = useJobs();
+
+  const handleLocationSearch = (location: string) => {
+    setLocationFilter(location);
+    // Here you would typically filter jobs by location
+    console.log('Searching jobs in:', location);
+  };
 
   if (loading) {
     return (
@@ -135,6 +144,15 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Quality Jobs Section */}
+      <QualityJobs jobs={jobs} />
+
+      {/* Location Flexible Section */}
+      <LocationFlexible jobs={jobs} onLocationSearch={handleLocationSearch} />
+
+      {/* Career Growth Section */}
+      <CareerGrowth />
+
       {/* Featured Jobs */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -145,7 +163,6 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {jobsLoading ? (
-              // Loading skeleton
               [...Array(6)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
                   <CardHeader>
@@ -170,54 +187,6 @@ const Index = () => {
                 <p className="text-gray-500">No jobs available at the moment. Check back later!</p>
               </div>
             )}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">Why Choose JobOpportunity?</h3>
-            <p className="text-lg text-gray-600">We make job searching and hiring simple and effective</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-              <CardHeader>
-                <Briefcase className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Quality Jobs</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Access to high-quality job postings from verified employers and top companies.
-                </CardDescription>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-              <CardHeader>
-                <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Location Flexible</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Find remote, hybrid, or on-site opportunities that fit your lifestyle and preferences.
-                </CardDescription>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-              <CardHeader>
-                <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Career Growth</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Connect with mentors, join professional networks, and advance your career.
-                </CardDescription>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
