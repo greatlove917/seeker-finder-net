@@ -24,6 +24,23 @@ const Index = () => {
     console.log('Searching jobs in:', location);
   };
 
+  const handleStartGrowthJourney = () => {
+    if (!user) {
+      setAuthModalOpen(true);
+    } else {
+      // User is authenticated, could navigate to growth dashboard
+      console.log('Starting growth journey for user:', user.email);
+    }
+  };
+
+  const handleJobPosting = () => {
+    if (!user) {
+      setAuthModalOpen(true);
+    } else {
+      setJobPostingModalOpen(true);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -38,7 +55,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -49,9 +66,16 @@ const Index = () => {
             <div className="flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-muted-foreground hidden sm:inline">
                     Welcome, {user.email}
                   </span>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleJobPosting}
+                    className="hidden sm:flex bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700"
+                  >
+                    Post Job
+                  </Button>
                   <Button variant="outline" onClick={() => signOut()}>
                     Sign Out
                   </Button>
@@ -115,7 +139,7 @@ const Index = () => {
             )}
             <Button 
               size="lg" 
-              onClick={() => user ? setJobPostingModalOpen(true) : setAuthModalOpen(true)}
+              onClick={handleJobPosting}
               className="px-8 py-3 bg-secondary hover:bg-secondary/90 transition-all duration-300 transform hover:scale-105"
             >
               Post Jobs as Employer
@@ -151,7 +175,7 @@ const Index = () => {
       <LocationFlexible jobs={jobs} onLocationSearch={handleLocationSearch} />
 
       {/* Career Growth Section */}
-      <CareerGrowth />
+      <CareerGrowth onStartJourney={handleStartGrowthJourney} />
 
       {/* Featured Jobs */}
       <section className="py-16 bg-gray-50">
@@ -198,14 +222,26 @@ const Index = () => {
           <p className="text-xl text-blue-100 mb-8">
             Join thousands of professionals who have found their perfect job through JobOpportunity.
           </p>
-          <Button 
-            size="lg" 
-            variant="secondary"
-            onClick={() => setAuthModalOpen(true)}
-            className="px-8 py-3 transition-all duration-300 transform hover:scale-105"
-          >
-            Join Now - It's Free
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              variant="secondary"
+              onClick={() => setAuthModalOpen(true)}
+              className="px-8 py-3 transition-all duration-300 transform hover:scale-105"
+            >
+              Join Now - It's Free
+            </Button>
+            {user && (
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={handleJobPosting}
+                className="px-8 py-3 bg-transparent border-white text-white hover:bg-white hover:text-primary transition-all duration-300"
+              >
+                Post a Job Now
+              </Button>
+            )}
+          </div>
         </div>
       </section>
 
