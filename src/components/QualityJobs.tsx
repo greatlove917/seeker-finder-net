@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,9 +7,10 @@ import { Job } from '@/hooks/useJobs'
 
 interface QualityJobsProps {
   jobs: Job[]
+  onViewQualityJobs?: (qualityJobs: Job[]) => void
 }
 
-export const QualityJobs = ({ jobs }: QualityJobsProps) => {
+export const QualityJobs = ({ jobs, onViewQualityJobs }: QualityJobsProps) => {
   const [showVerified, setShowVerified] = useState(false)
 
   const getJobQualityScore = (job: Job) => {
@@ -30,6 +30,13 @@ export const QualityJobs = ({ jobs }: QualityJobsProps) => {
     .sort((a, b) => b.qualityScore - a.qualityScore)
 
   const verifiedCompanies = jobs.filter(job => job.companies.logo_url).length
+
+  const handleViewQualityJobs = () => {
+    setShowVerified(!showVerified)
+    if (onViewQualityJobs && !showVerified) {
+      onViewQualityJobs(qualityJobs)
+    }
+  }
 
   return (
     <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -82,8 +89,8 @@ export const QualityJobs = ({ jobs }: QualityJobsProps) => {
 
         <div className="text-center mb-8">
           <Button 
-            onClick={() => setShowVerified(!showVerified)}
-            className="bg-primary hover:bg-primary/90"
+            onClick={handleViewQualityJobs}
+            className="bg-primary hover:bg-primary/90 transform transition-all duration-300 hover:scale-105"
           >
             <Briefcase className="h-4 w-4 mr-2" />
             {showVerified ? 'Show All Jobs' : 'View Quality Jobs Only'}
@@ -91,9 +98,9 @@ export const QualityJobs = ({ jobs }: QualityJobsProps) => {
         </div>
 
         {showVerified && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {qualityJobs.slice(0, 6).map((job) => (
-              <Card key={job.id} className="hover:shadow-lg transition-shadow">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+            {qualityJobs.slice(0, 9).map((job) => (
+              <Card key={job.id} className="hover:shadow-lg transition-all duration-300 hover:scale-105">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -121,8 +128,14 @@ export const QualityJobs = ({ jobs }: QualityJobsProps) => {
                     <span className="text-sm font-medium">
                       {job.salary_min && `$${job.salary_min.toLocaleString()}+`}
                     </span>
-                    <Badge variant="outline">{job.job_type}</Badge>
+                    <div className="flex gap-2">
+                      <Badge variant="outline">{job.job_type}</Badge>
+                      {job.remote_allowed && <Badge className="bg-blue-100 text-blue-800">Remote</Badge>}
+                    </div>
                   </div>
+                  <Button className="w-full mt-3" size="sm">
+                    Apply Now
+                  </Button>
                 </CardContent>
               </Card>
             ))}

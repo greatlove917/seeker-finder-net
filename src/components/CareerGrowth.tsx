@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -11,11 +10,20 @@ interface CareerGrowthProps {
   onStartJourney?: () => void
 }
 
+interface Skill {
+  name: string
+  demand: number
+  growth: string
+  description: string
+  modules: string[]
+}
+
 export const CareerGrowth = ({ onStartJourney }: CareerGrowthProps) => {
   const [selectedCareerPath, setSelectedCareerPath] = useState<string | null>(null)
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null)
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
   const [skillModalOpen, setSkillModalOpen] = useState(false)
   const [journeyModalOpen, setJourneyModalOpen] = useState(false)
+  const [successStoriesModalOpen, setSuccessStoriesModalOpen] = useState(false)
 
   const careerPaths = [
     {
@@ -59,7 +67,7 @@ export const CareerGrowth = ({ onStartJourney }: CareerGrowthProps) => {
     skillsLearned: 15600
   }
 
-  const skills = [
+  const skills: Skill[] = [
     { 
       name: 'Leadership', 
       demand: 92, 
@@ -104,7 +112,31 @@ export const CareerGrowth = ({ onStartJourney }: CareerGrowthProps) => {
     }
   ]
 
-  const handleSkillClick = (skill: any) => {
+  const successStories = [
+    {
+      name: 'Sarah Chen',
+      role: 'Software Engineer → Tech Lead',
+      company: 'Google',
+      story: 'Transitioned from junior developer to tech lead in 18 months through our mentorship program.',
+      image: '/placeholder.svg'
+    },
+    {
+      name: 'Marcus Rodriguez',
+      role: 'Marketing Specialist → CMO',
+      company: 'Startup Inc',
+      story: 'Built digital marketing skills and leadership capabilities to become CMO of a fast-growing startup.',
+      image: '/placeholder.svg'
+    },
+    {
+      name: 'Emily Johnson',
+      role: 'Data Analyst → Head of Analytics',
+      company: 'Fortune 500',
+      story: 'Leveraged AI/ML courses to advance from analyst to head of analytics at a Fortune 500 company.',
+      image: '/placeholder.svg'
+    }
+  ]
+
+  const handleSkillClick = (skill: Skill) => {
     setSelectedSkill(skill)
     setSkillModalOpen(true)
   }
@@ -114,6 +146,10 @@ export const CareerGrowth = ({ onStartJourney }: CareerGrowthProps) => {
     if (onStartJourney) {
       onStartJourney()
     }
+  }
+
+  const handleWatchSuccessStories = () => {
+    setSuccessStoriesModalOpen(true)
   }
 
   return (
@@ -137,13 +173,14 @@ export const CareerGrowth = ({ onStartJourney }: CareerGrowthProps) => {
                   size="sm" 
                   variant="secondary" 
                   className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  onClick={handleWatchSuccessStories}
                 >
                   <Play className="h-4 w-4 mr-2" />
                   Watch Success Stories
                 </Button>
               </div>
               
-              {/* Simulated collaborative scene */}
+              {/* People interacting and sitting down image */}
               <div className="grid grid-cols-3 gap-8 items-center">
                 <div className="text-left">
                   <div className="bg-white/20 rounded-full w-16 h-16 flex items-center justify-center mb-4">
@@ -322,6 +359,48 @@ export const CareerGrowth = ({ onStartJourney }: CareerGrowthProps) => {
           </Button>
         </div>
       </div>
+
+      {/* Success Stories Modal */}
+      <Dialog open={successStoriesModalOpen} onOpenChange={setSuccessStoriesModalOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Star className="h-7 w-7 text-yellow-500" />
+              Success Stories
+            </DialogTitle>
+            <DialogDescription>
+              Real people who transformed their careers through our platform
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {successStories.map((story, index) => (
+              <Card key={index} className="text-center">
+                <CardHeader>
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 mx-auto mb-4 flex items-center justify-center text-white font-bold text-2xl">
+                    {story.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <CardTitle className="text-lg">{story.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{story.role}</p>
+                  <Badge variant="outline">{story.company}</Badge>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">{story.story}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          <div className="text-center mt-6">
+            <Button 
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              onClick={() => setSuccessStoriesModalOpen(false)}
+            >
+              Start Your Success Story
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Skill Details Modal */}
       <Dialog open={skillModalOpen} onOpenChange={setSkillModalOpen}>
