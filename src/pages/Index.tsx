@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -103,8 +104,18 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* Bright Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2084&q=80&brightness=1.2&contrast=1.1&saturation=1.3" 
+            alt="People lining up for job opportunities" 
+            className="w-full h-full object-cover opacity-20 brightness-150 contrast-110 saturate-150"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-100/80 via-blue-50/70 to-indigo-100/80"></div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-5xl font-bold text-gray-900 mb-6">
             Find Your Dream Job
           </h2>
@@ -118,10 +129,10 @@ const Index = () => {
               <input
                 type="text"
                 placeholder="Search jobs, companies, or skills..."
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white/90 backdrop-blur-sm"
               />
             </div>
-            <Button size="lg" className="px-8 py-3 bg-primary hover:bg-primary/90">
+            <Button size="lg" className="px-8 py-3 bg-primary hover:bg-primary/90 shadow-lg">
               Search Jobs
             </Button>
           </div>
@@ -132,7 +143,7 @@ const Index = () => {
                 size="lg" 
                 variant="outline" 
                 onClick={() => setAuthModalOpen(true)}
-                className="px-8 py-3 hover:bg-primary/10"
+                className="px-8 py-3 hover:bg-primary/10 bg-white/80 backdrop-blur-sm shadow-md"
               >
                 Sign Up as Job Seeker
               </Button>
@@ -140,7 +151,7 @@ const Index = () => {
             <Button 
               size="lg" 
               onClick={handleJobPosting}
-              className="px-8 py-3 bg-secondary hover:bg-secondary/90 transition-all duration-300 transform hover:scale-105"
+              className="px-8 py-3 bg-secondary hover:bg-secondary/90 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               Post Jobs as Employer
             </Button>
