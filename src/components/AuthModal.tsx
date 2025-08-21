@@ -1,13 +1,8 @@
 
-import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { useAuth } from '@/hooks/useAuth'
-import { useToast } from '@/hooks/use-toast'
+import { SignInForm } from '@/components/auth/SignInForm'
+import { SignUpForm } from '@/components/auth/SignUpForm'
 
 interface AuthModalProps {
   open: boolean
@@ -15,73 +10,8 @@ interface AuthModalProps {
 }
 
 export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
-  const [loading, setLoading] = useState(false)
-  const [userType, setUserType] = useState<'talent' | 'employer'>('talent')
-  const { signUp, signIn } = useAuth()
-  const { toast } = useToast()
-
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    const firstName = formData.get('firstName') as string
-    const lastName = formData.get('lastName') as string
-    const companyName = formData.get('companyName') as string
-
-    const { error } = await signUp(email, password, {
-      first_name: firstName,
-      last_name: lastName,
-      user_type: userType,
-      company_name: companyName
-    })
-
-    if (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive'
-      })
-    } else {
-      toast({
-        title: 'Success',
-        description: userType === 'talent' 
-          ? 'Welcome! Please check your email to verify your account.' 
-          : 'Welcome employer! Please check your email to verify your account.'
-      })
-      onOpenChange(false)
-    }
-
-    setLoading(false)
-  }
-
-  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-
-    const { error } = await signIn(email, password)
-
-    if (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive'
-      })
-    } else {
-      toast({
-        title: 'Success',
-        description: 'Welcome back! You are now signed in.'
-      })
-      onOpenChange(false)
-    }
-
-    setLoading(false)
+  const handleSuccess = () => {
+    onOpenChange(false)
   }
 
   return (
@@ -100,123 +30,11 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
           </TabsList>
           
           <TabsContent value="signin" className="space-y-4">
-            <div className="text-center text-sm text-muted-foreground">
-              Welcome back! Sign in to access your account
-            </div>
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div>
-                <Label htmlFor="signin-email">Email</Label>
-                <Input
-                  id="signin-email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="your@email.com"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="signin-password">Password</Label>
-                <Input
-                  id="signin-password"
-                  name="password"
-                  type="password"
-                  required
-                  placeholder="Your password"
-                  className="mt-1"
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Signing in...' : 'Sign In'}
-              </Button>
-            </form>
+            <SignInForm onSuccess={handleSuccess} />
           </TabsContent>
           
           <TabsContent value="signup" className="space-y-4">
-            <div className="text-center text-sm text-muted-foreground">
-              Create your account to get started
-            </div>
-            <form onSubmit={handleSignUp} className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium">I am a:</Label>
-                <RadioGroup 
-                  value={userType} 
-                  onValueChange={(value) => setUserType(value as 'talent' | 'employer')}
-                  className="mt-2"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="talent" id="talent" />
-                    <Label htmlFor="talent" className="font-normal">Job Seeker</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="employer" id="employer" />
-                    <Label htmlFor="employer" className="font-normal">Employer</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    required
-                    placeholder="John"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    required
-                    placeholder="Doe"
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-              
-              {userType === 'employer' && (
-                <div>
-                  <Label htmlFor="companyName">Company Name</Label>
-                  <Input
-                    id="companyName"
-                    name="companyName"
-                    required
-                    placeholder="Your Company"
-                    className="mt-1"
-                  />
-                </div>
-              )}
-              
-              <div>
-                <Label htmlFor="signup-email">Email</Label>
-                <Input
-                  id="signup-email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="your@email.com"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="signup-password">Password</Label>
-                <Input
-                  id="signup-password"
-                  name="password"
-                  type="password"
-                  required
-                  placeholder="Create a password"
-                  className="mt-1"
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Creating account...' : 'Sign Up'}
-              </Button>
-            </form>
+            <SignUpForm onSuccess={handleSuccess} />
           </TabsContent>
         </Tabs>
       </DialogContent>
