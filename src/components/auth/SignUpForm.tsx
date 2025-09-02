@@ -65,37 +65,59 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
 
     setLoading(true)
 
-    const { error } = await signUp(formData.email, formData.password, {
-      first_name: formData.firstName,
-      last_name: formData.lastName,
-      user_type: userType,
-      company_name: formData.companyName
-    })
+    try {
+      const { error } = await signUp(formData.email, formData.password, {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        user_type: userType,
+        company_name: userType === 'employer' ? formData.companyName : null
+      })
 
-    if (error) {
-      let errorMessage = 'Failed to create account. Please try again.'
-      
-      if (error.message.includes('already registered')) {
-        errorMessage = 'This email is already registered. Please sign in instead.'
-      } else if (error.message.includes('Password should be')) {
-        errorMessage = 'Password must be at least 6 characters long.'
-      } else if (error.message.includes('Invalid email')) {
-        errorMessage = 'Please enter a valid email address.'
+      if (error) {
+        console.error('Sign up error:', error)
+        
+        let errorMessage = 'Failed to create account. Please try again.'
+        
+        if (error.message?.includes('already registered') || error.message?.includes('already been registered')) {
+          errorMessage = 'This email is already registered. Please sign in instead.'
+        } else if (error.message?.includes('Password should be')) {
+          errorMessage = 'Password must be at least 6 characters long.'
+        } else if (error.message?.includes('Invalid email')) {
+          errorMessage = 'Please enter a valid email address.'
+        } else if (error.message?.includes('User already registered')) {
+          errorMessage = 'This email is already registered. Please sign in instead.'
+        }
+
+        toast({
+          title: 'Sign Up Failed',
+          description: errorMessage,
+          variant: 'destructive'
+        })
+      } else {
+        toast({
+          title: 'Account Created Successfully!',
+          description: 'Please check your email to verify your account, then sign in below.',
+        })
+        
+        // Reset form
+        setFormData({
+          email: '',
+          password: '',
+          firstName: '',
+          lastName: '',
+          companyName: ''
+        })
+        setUserType('talent')
+        
+        onSuccess()
       }
-
+    } catch (err) {
+      console.error('Unexpected error during sign up:', err)
       toast({
         title: 'Sign Up Failed',
-        description: errorMessage,
+        description: 'An unexpected error occurred. Please try again.',
         variant: 'destructive'
       })
-    } else {
-      toast({
-        title: 'Account Created!',
-        description: userType === 'talent' 
-          ? 'Welcome! Please check your email to verify your account.' 
-          : 'Welcome employer! Please check your email to verify your account.'
-      })
-      onSuccess()
     }
 
     setLoading(false)
